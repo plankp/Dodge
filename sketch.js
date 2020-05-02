@@ -27,6 +27,7 @@ let s0ypos = 0;
 let s1flag = true, s1ypos = 0;
 let s2flag = true, s2xpos = 0, s2xlag = -30;
 let s4flag = true, s4ypos = 0, s4ylag = -120;
+let s6flag = true, s6xpos = 0, s6xlag = -60;
 
 // The draw function (aka our game loop) just needs to do current_scene() to
 // perform the update the correct scene. The setup function will point this to
@@ -82,6 +83,7 @@ function setup() {
     s1ypos = height + 1; // so it doesnt show on the bottom
     s2xpos = -1;
     s4ypos = -1;
+    s6xpos = width + 1;
 
     current_scene = title_scene;
 }
@@ -162,7 +164,30 @@ function gameplay_scene() {
         //
         // This whole thing (apart from the default case declared at the very
         // bottom) relies on fallthroughs! excercise caution when reordering!
+        case 8:
+        case 7:
+            if (stage == 7) s4flag = true;
         case 6:
+            if (stage == 6) s4flag = false;
+            s6xpos = s6xpos + 1;
+            if (s6flag) {
+                if (s6xpos > width) s6xpos = s6xlag, s6xlag = 0;
+
+                if (rect_col(
+                    p11x, p11y, p12x, p12y,
+                    s6xpos, 0, s6xpos, 10
+                )) return gamelose();
+
+                if (rect_col(
+                    p11x, p11y, p12x, p12y,
+                    s6xpos, 60, s6xpos, 350
+                )) return gamelose();
+
+                if (rect_col(
+                    p11x, p11y, p12x, p12y,
+                    s6xpos, 400, s6xpos, 450
+                )) return gamelose();
+            }
         case 5:
             if (stage == 5) s1flag = true; // re-enable s1 muahahahaha
         case 4:
@@ -281,6 +306,10 @@ function gameplay_scene() {
     line(0, s4ypos, 165, s4ypos);
     line(215, s4ypos, 285, s4ypos);
     line(335, s4ypos, width, s4ypos);
+
+    line(s6xpos, 0, s6xpos, 10);
+    line(s6xpos, 60, s6xpos, 350);
+    line(s6xpos, 400, s6xpos, 450);
 
     // Obviously the movement controller thing goes above all muahahaha (random
     // villan laugh wut?)...
