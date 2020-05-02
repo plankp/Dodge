@@ -21,9 +21,9 @@ let stage = 0;
 // xlag => initial delay on the x axis
 // flag => FALSE enemy will stop after hitting the wall, TRUE resumes
 let s0ypos = 0;
-let s1ypos = 0, s1flag = true;
-let s2xpos = 0, s2xlag = -30;
-let s4ypos = 0, s4ylag = -120;
+let s1flag = true, s1ypos = 0;
+let s2flag = true, s2xpos = 0, s2xlag = -30;
+let s4flag = true, s4ypos = 0, s4ylag = -120;
 
 // The draw function (aka our game loop) just needs to do current_scene() to
 // perform the update the correct scene. The setup function will point this to
@@ -161,54 +161,57 @@ function gameplay_scene() {
         // bottom) relies on fallthroughs! excercise caution when reordering!
         case 6:
         case 5:
-            s1flag = true; // re-enable s1 muahahahaha
+            if (stage == 5) s1flag = true; // re-enable s1 muahahahaha
         case 4:
-            // use if condition only because we use hacky fallthroughs
             if (stage == 4) s1flag = false; // disable s1
             s4ypos = s4ypos - 1;
-            if (s4ypos < s4ylag) s4ypos = height, s4ylag = 0;
+            if (s4flag) {
+                if (s4ypos < s4ylag) s4ypos = height, s4ylag = 0;
 
-            if (rect_col(
-                p11x, p11y, p12x, p12y,
-                0, s4ypos, 155, s4ypos
-            )) return gamelose();
+                if (rect_col(
+                    p11x, p11y, p12x, p12y,
+                    0, s4ypos, 165, s4ypos
+                )) return gamelose();
 
-            if (rect_col(
-                p11x, p11y, p12x, p12y,
-                215, s4ypos, 285, s4ypos
-            )) return gamelose();
+                if (rect_col(
+                    p11x, p11y, p12x, p12y,
+                    215, s4ypos, 285, s4ypos
+                )) return gamelose();
 
-            if (rect_col(
-                p11x, p11y, p12x, p12y,
-                345, s4ypos, width, s4ypos
-            )) return gamelose();
+                if (rect_col(
+                    p11x, p11y, p12x, p12y,
+                    335, s4ypos, width, s4ypos
+                )) return gamelose();
+            }
         case 3:
             // Dummy level (it's just cuz I want to see our player survive this
             // twice :trollface:, that also means it's harder to test the whole
             // game...)
         case 2:
             s2xpos = s2xpos - 1.5;
-            if (s2xpos < s2xlag) s2xpos = width, s2xlag = 0;
+            if (s2flag) {
+                if (s2xpos < s2xlag) s2xpos = width, s2xlag = 0;
 
-            if (rect_col(
-                p11x, p11y, p12x, p12y,
-                s2xpos, 0, s2xpos, 75
-            )) return gamelose();
+                if (rect_col(
+                    p11x, p11y, p12x, p12y,
+                    s2xpos, 0, s2xpos, 75
+                )) return gamelose();
 
-            if (rect_col(
-                p11x, p11y, p12x, p12y,
-                s2xpos, 125, s2xpos, 225
-            )) return gamelose();
+                if (rect_col(
+                    p11x, p11y, p12x, p12y,
+                    s2xpos, 125, s2xpos, 225
+                )) return gamelose();
 
-            if (rect_col(
-                p11x, p11y, p12x, p12y,
-                s2xpos, 275, s2xpos, 375
-            )) return gamelose();
+                if (rect_col(
+                    p11x, p11y, p12x, p12y,
+                    s2xpos, 275, s2xpos, 375
+                )) return gamelose();
 
-            if (rect_col(
-                p11x, p11y, p12x, p12y,
-                s2xpos, 425, s2xpos, height
-            )) return gamelose();
+                if (rect_col(
+                    p11x, p11y, p12x, p12y,
+                    s2xpos, 425, s2xpos, height
+                )) return gamelose();
+            }
         case 1:
             s1ypos = s1ypos + 1;
             if (s1flag) {
@@ -264,9 +267,9 @@ function gameplay_scene() {
     line(s2xpos, 275, s2xpos, 375);
     line(s2xpos, 425, s2xpos, height);
 
-    line(0, s4ypos, 155, s4ypos);
+    line(0, s4ypos, 165, s4ypos);
     line(215, s4ypos, 285, s4ypos);
-    line(345, s4ypos, width, s4ypos);
+    line(335, s4ypos, width, s4ypos);
 
     // Obviously the movement controller thing goes above all muahahaha (random
     // villan laugh wut?)...
