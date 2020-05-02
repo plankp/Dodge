@@ -328,7 +328,7 @@ function mousePressed() {
     // Early exit if we are not capturing input
     if (!capture) return false;
 
-    noCursor();
+    cursor(CROSS);
 
     lockx = mouseX;
     locky = mouseY;
