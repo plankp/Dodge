@@ -6,6 +6,7 @@ let hasMoved = false;
 
 // ***** Mouse capturing *****
 const cw = 10;
+let restart_on_click = false;
 let capture = false;
 let lockx = undefined;
 let locky = undefined;
@@ -23,11 +24,13 @@ let chewf = 0;
 // ylag => initial delay on the y axis
 // xlag => initial delay on the x axis
 // flag => FALSE enemy will stop after hitting the wall, TRUE resumes
+
+// Actual initial values check my_setup()
 let s0ypos = 0;
 let s1flag = true, s1ypos = 0;
-let s2flag = true, s2xpos = 0, s2xlag = -30;
-let s4flag = true, s4ypos = 0, s4ylag = -120;
-let s6flag = true, s6xpos = 0, s6xlag = -60;
+let s2flag = true, s2xpos = 0, s2xlag = 0;
+let s4flag = true, s4ypos = 0, s4ylag = 0;
+let s6flag = true, s6xpos = 0, s6xlag = 0;
 
 // The draw function (aka our game loop) just needs to do current_scene() to
 // perform the update the correct scene. The setup function will point this to
@@ -48,8 +51,8 @@ function gamelose() {
 
 // A convenience function to enter the game-win scene
 function gamewin() {
-    // unlike when you lose the game, mouse capture continues (so you can moved
-    // the player around).
+    capture = false;
+    mouseReleased();
 
     current_scene = gamewin_scene;
 }
@@ -71,19 +74,25 @@ function rect_col(r11x, r11y, r12x, r12y, r21x, r21y, r22x, r22y) {
 
 function setup() {
     createCanvas(500, 500);
+    my_setup();
+}
 
-    px = width / 2;
-    py = height * 3 / 5;
+// Because the p5 folks said I should not call setup after the game starts...
+function my_setup() {
+    restart_on_click = false;
     hasMoved = false;
     capture = true;
 
+    px = width / 2;
+    py = height * 3 / 5;
+
     stage = 0;
 
-    s0ypos = 0; // must be 0 for the calculations to work out
-    s1ypos = height + 1; // so it doesnt show on the bottom
-    s2xpos = -1;
-    s4ypos = -1;
-    s6xpos = width + 1;
+    s0ypos = 0; // must be 0 for calculations to work out
+    s1flag = true, s1ypos = height + 1;
+    s2flag = true, s2xpos = -1, s2xlag = -30;
+    s4flag = true, s4ypos = -1, s4ylag = -120;
+    s6flag = true, s6xpos = width + 1, s6xlag = -60;
 
     current_scene = title_scene;
 }
@@ -114,30 +123,29 @@ function title_scene() {
 }
 
 function gamelose_scene() {
+    restart_on_click = true;
+
     textSize(20);
     stroke(0);
     fill(0);
 
     text('GAME OVER!', 178, 140);
-    text('Reload the page to play again.', 105, 190);
+    text('Click the square to play again.', 105, 190);
 
     draw_player();
 }
 
 function gamewin_scene() {
-    // Player can continue to move, so must call update_player() to update the
-    // position.
-    update_player();
+    restart_on_click = true;
 
     textSize(20);
     stroke(0);
     fill(0);
 
     text('You completed the game!', 125, 140);
-    text('Reload the page to play again.', 105, 190);
+    text('Click the square to play again.', 105, 190);
 
     draw_player();
-    draw_controller();
 }
 
 function gameplay_scene() {
@@ -368,6 +376,13 @@ function update_player() {
 }
 
 function mousePressed() {
+    if (restart_on_click) {
+        if (abs(px - mouseX) < pw && abs(py - mouseY) < pw) {
+            my_setup();
+            return false;
+        }
+    }
+
     // Early exit if we are not capturing input
     if (!capture) return false;
 
