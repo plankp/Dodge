@@ -100,12 +100,9 @@ function title_scene() {
     stroke(0);
     fill(0);
 
-    text('Drag your finger (touchscreen folks) or', 50, 50);
-    text('mouse (well, mouse folks) to move the', 50, 75);
-    text('square.', 50, 100);
-    text('You will need to dodge things (you will', 50, 130);
-    text('see once the game starts...)', 50, 155);
-    text('Game will start once you move the square', 50, 215);
+    text('Drag your mouse to move the square.', 76, 95);
+    text('Once the game starts, dodge everything!', 64, 155);
+    text('Game will start once you move the square.', 58, 215);
 
     draw_player();
     draw_controller();
@@ -120,7 +117,7 @@ function gamelose_scene() {
     fill(0);
 
     text('GAME OVER!', 178, 140);
-    text('Reload the page to play again', 105, 190);
+    text('Reload the page to play again.', 105, 190);
 
     draw_player();
 }
@@ -135,7 +132,7 @@ function gamewin_scene() {
     fill(0);
 
     text('You completed the game!', 125, 140);
-    text('Reload the page to play again', 105, 190);
+    text('Reload the page to play again.', 105, 190);
 
     draw_player();
     draw_controller();
