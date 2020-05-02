@@ -1,15 +1,31 @@
-const cw = 10;
+// ***** Player position *****
 const pw = 30;
 let px = 0;
 let py = 0;
 let hasMoved = false;
-let capture = false;
 
-let stage = 0;
+// ***** Mouse capturing *****
+const cw = 10;
+let capture = false;
 let lockx = undefined;
 let locky = undefined;
 
-let yPos = 0;
+// ***** Game stage *****
+let stage = 0;
+
+// Convention:
+// s_   => which stage does this enemy appear
+// ypos => this enemy is a horizontal bar
+// xpos => this enemy is a vertical bar
+// ylag => initial delay on the y axis
+// xlag => initial delay on the x axis
+let s0ypos = 0;
+let s1ypos = 0;
+let s2xpos = 0, s2xlag = -30;
+
+// The draw function (aka our game loop) just needs to do current_scene() to
+// perform the update the correct scene. The setup function will point this to
+// the right starting place!
 let current_scene = function () { /* do nothing */ };
 
 // A convenience function to enter the game-lose scene
@@ -54,7 +70,10 @@ function setup() {
 
     stage = 0;
 
-    yPos = 0;
+    s0ypos = 0; // must be 0 for the calculations to work out
+    s1ypos = height + 1; // so it doesnt show on the bottom
+    s2xpos = -1;
+
     current_scene = title_scene;
 }
 
@@ -118,6 +137,12 @@ function gameplay_scene() {
 
     update_player();
 
+    // Some variables (keep constant to help compute collisions)
+    let p11x = px - pw / 2;
+    let p11y = py - pw / 2;
+    let p12x = px + pw / 2;
+    let p12y = py + pw / 2;
+
     // As a side note, VS code's js formatting really really really (see how
     // many really's I used?) sucks: trying to move a statement (or even a case
     // label) causes the whole indent pyramid to shift like crazy!
@@ -127,28 +152,65 @@ function gameplay_scene() {
     // Another side note (geez...), did tail call optimization thing become
     // mandated by js?
     switch (stage) {
-        case 0:
-            yPos = yPos - 1;
-            if (yPos < 0) {
-                yPos = height;
-            }
-            if (yPos == 0) {
-                // Will enter the next stage next time update is called!
-                stage++;
-            }
+        // (this case-switch got the most comment-attention! woah!)
+        //
+        // This whole thing (apart from the default case declared at the very
+        // bottom) relies on fallthroughs! excercise caution when reordering!
+        case 3:
+            // Dummy level (it's just cuz I want to see our player survive this
+            // twice :trollface:, that also means it's harder to test the whole
+            // game...)
+        case 2:
+            s2xpos = s2xpos - 1.5;
+            if (s2xpos < s2xlag) s2xpos = width, s2xlag = 0;
 
             if (rect_col(
-                px - pw / 2, py - pw / 2,
-                px + pw / 2, py + pw / 2,
-                0, yPos,
-                100, yPos
+                p11x, p11y, p12x, p12y,
+                s2xpos, 0, s2xpos, 75
             )) return gamelose();
 
             if (rect_col(
-                px - pw / 2, py - pw / 2,
-                px + pw / 2, py + pw / 2,
-                150, yPos,
-                width, yPos
+                p11x, p11y, p12x, p12y,
+                s2xpos, 125, s2xpos, 225
+            )) return gamelose();
+
+            if (rect_col(
+                p11x, p11y, p12x, p12y,
+                s2xpos, 275, s2xpos, 375
+            )) return gamelose();
+
+            if (rect_col(
+                p11x, p11y, p12x, p12y,
+                s2xpos, 425, s2xpos, height
+            )) return gamelose();
+        case 1:
+            s1ypos = s1ypos + 1;
+            if (s1ypos > height) s1ypos = 0;
+
+            if (rect_col(
+                p11x, p11y, p12x, p12y,
+                0, s1ypos, 350, s1ypos
+            )) return gamelose();
+
+            if (rect_col(
+                p11x, p11y, p12x, p12y,
+                400, s1ypos, width, s1ypos
+            )) return gamelose();
+        case 0:
+            s0ypos = s0ypos - 1;
+            if (s0ypos < 0) s0ypos = height;
+
+            // Will enter the next stage next time update is called!
+            if (s0ypos == 0) stage++;
+
+            if (rect_col(
+                p11x, p11y, p12x, p12y,
+                0, s0ypos, 100, s0ypos
+            )) return gamelose();
+
+            if (rect_col(
+                p11x, p11y, p12x, p12y,
+                150, s0ypos, width, s0ypos
             )) return gamelose();
             break;
         default:
@@ -163,8 +225,16 @@ function gameplay_scene() {
     fill(600);  // basically white
 
     // These are the *enemies* (draw them above our *person*)
-    line(0, yPos, 100, yPos);
-    line(150, yPos, width, yPos);
+    line(0, s0ypos, 100, s0ypos);
+    line(150, s0ypos, width, s0ypos);
+
+    line(0, s1ypos, 350, s1ypos);
+    line(400, s1ypos, width, s1ypos);
+
+    line(s2xpos, 0, s2xpos, 75);
+    line(s2xpos, 125, s2xpos, 225);
+    line(s2xpos, 275, s2xpos, 375);
+    line(s2xpos, 425, s2xpos, height);
 
     // Obviously the movement controller thing goes above all muahahaha (random
     // villan laugh wut?)...
@@ -208,8 +278,8 @@ function update_player() {
 
     // const map = x => Math.sign(x) * sq(x);
     const map = x => x;
-    let pdx = map((curx - capx) / 170);
-    let pdy = map((cury - capy) / 170);
+    let pdx = map((curx - capx) / 176);
+    let pdy = map((cury - capy) / 176);
 
     let dx = pdx * deltaTime;
     let dy = pdy * deltaTime;
