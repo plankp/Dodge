@@ -13,6 +13,9 @@ let locky = undefined;
 // ***** Game stage *****
 let stage = 0;
 
+// used exclusively by stage -1 (which is like a game-over frame)
+let chewf = 0;
+
 // Convention:
 // s_   => which stage does this enemy appear
 // ypos => this enemy is a horizontal bar
@@ -30,13 +33,16 @@ let s4flag = true, s4ypos = 0, s4ylag = -120;
 // the right starting place!
 let current_scene = function () { /* do nothing */ };
 
-// A convenience function to enter the game-lose scene
+// A convenience function to initiate entering the game-lose scene
 function gamelose() {
     // stop capturing the mouse.
     capture = false;
     mouseReleased();
 
-    current_scene = gamelose_scene;
+    // give .75 seconds (so 750 ms) to show why the player died.
+    chewf = 750;
+    // enter stage -1
+    stage = -1;
 }
 
 // A convenience function to enter the game-win scene
@@ -246,6 +252,14 @@ function gameplay_scene() {
             break;
         default:
             return gamewin();
+        case -1:
+            chewf -= deltaTime;
+            if (chewf < 0) {
+                // time's up, jump to game-lose scene.
+                current_scene = gamelose_scene;
+                return;
+            }
+            break;
     }
 
     // ****** Rendering ******
