@@ -11,6 +11,10 @@ let capture = false;
 let lockx = undefined;
 let locky = undefined;
 
+// ***** Fun statistics *****
+let tries_counter = 1;
+let dummy_swap = 0;
+
 // ***** Game stage *****
 let stage = 0;
 
@@ -43,6 +47,9 @@ function gamelose() {
     capture = false;
     mouseReleased();
 
+    // Increase death count.
+    tries_counter++;
+
     // give .75 seconds (so 750 ms) to show why the player died.
     chewf = 750;
     // enter stage -1
@@ -54,6 +61,9 @@ function gamewin() {
     capture = false;
     mouseReleased();
 
+    // Reset death count.
+    dummy_swap = tries_counter;
+    tries_counter = 1;
     current_scene = gamewin_scene;
 }
 
@@ -115,6 +125,17 @@ function title_scene() {
     text('Once the game starts, dodge everything!', 64, 155);
     text('Game will start once you move the square.', 58, 215);
 
+    if (tries_counter == 3) {
+        textSize(14);
+        text("Third time's the charm...", 20, 480);
+    } else if (tries_counter == 10) {
+        textSize(14);
+        text("10 tries already?", 20, 480);
+    } else if (tries_counter > 10) {
+        textSize(14);
+        text("Not giving up yet?", 20, 480);
+    }
+
     draw_player();
     draw_controller();
 
@@ -142,7 +163,13 @@ function gamewin_scene() {
     stroke(0);
     fill(0);
 
-    text('You completed the game!', 125, 140);
+    if (dummy_swap == 1) {
+        text('You completed the game on your first try!', 68, 140);
+    } else if (dummy_swap == 3) {
+        text("See? Third time's really the charm!", 88, 140);
+    } else {
+        text('You completed the game!', 125, 140);
+    }
     text('Click the square to play again.', 105, 190);
 
     draw_player();
