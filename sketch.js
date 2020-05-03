@@ -107,6 +107,18 @@ function my_setup() {
     current_scene = title_scene;
 }
 
+function restart_s2() {
+    s2flag = true;
+    s2xlag = -30;
+    if (s2xpos < 0) s2xpos = -1;
+}
+
+function restart_s4() {
+    s4flag = true;
+    s4ylag = -120;
+    if (s4ypos < 0) s4ypos = -1;
+}
+
 function draw() {
     // ***** Paint background *****
 
@@ -199,11 +211,15 @@ function gameplay_scene() {
         //
         // This whole thing (apart from the default case declared at the very
         // bottom) relies on fallthroughs! excercise caution when reordering!
+        case 10:
+        case 9:
+            // dummy
         case 8:
+            if (stage == 8) restart_s4(), stage++;
         case 7:
-            if (stage == 7) s4flag = true;
+            // dummy
         case 6:
-            if (stage == 6) s2flag = true, s4flag = false;
+            if (stage == 6) restart_s2(), s4flag = false, stage++;
             s6xpos = s6xpos + 1;
             if (s6flag) {
                 if (s6xpos > width) s6xpos = s6xlag, s6xlag = 0;
