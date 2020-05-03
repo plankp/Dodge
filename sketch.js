@@ -203,7 +203,7 @@ function gameplay_scene() {
         case 7:
             if (stage == 7) s4flag = true;
         case 6:
-            if (stage == 6) s4flag = false;
+            if (stage == 6) s2flag = true, s4flag = false;
             s6xpos = s6xpos + 1;
             if (s6flag) {
                 if (s6xpos > width) s6xpos = s6xlag, s6xlag = 0;
@@ -224,9 +224,8 @@ function gameplay_scene() {
                 )) return gamelose();
             }
         case 5:
-            if (stage == 5) s1flag = true; // re-enable s1 muahahahaha
+            if (stage == 5) s2flag = false;
         case 4:
-            if (stage == 4) s1flag = false; // disable s1
             s4ypos = s4ypos - 1;
             if (s4flag) {
                 if (s4ypos < s4ylag) s4ypos = height, s4ylag = 0;
@@ -247,10 +246,9 @@ function gameplay_scene() {
                 )) return gamelose();
             }
         case 3:
-            // Dummy level (it's just cuz I want to see our player survive this
-            // twice :trollface:, that also means it's harder to test the whole
-            // game...)
+            if (stage == 3) s1flag = true;
         case 2:
+            if (stage == 2) s1flag = false;
             s2xpos = s2xpos - 1.5;
             if (s2flag) {
                 if (s2xpos < s2xlag) s2xpos = width, s2xlag = 0;
