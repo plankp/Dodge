@@ -402,7 +402,7 @@ function update_player() {
 
 function mousePressed() {
     if (restart_on_click) {
-        if (abs(px - mouseX) < pw && abs(py - mouseY) < pw) {
+        if (abs(px - mouseX) < pw / 2 && abs(py - mouseY) < pw / 2) {
             my_setup();
             return false;
         }
