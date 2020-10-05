@@ -6,7 +6,6 @@ let hasMoved = false;
 
 // ***** Mouse capturing *****
 const cw = 10;
-let restart_on_click = false;
 let capture = false;
 let lockx = undefined;
 let locky = undefined;
@@ -83,26 +82,33 @@ function rect_col(r11x, r11y, r12x, r12y, r21x, r21y, r22x, r22y) {
 }
 
 function setup() {
-    createCanvas(500, 500);
+    // Setup the canvas
+    let canvw = min(windowWidth, windowHeight);
+    createCanvas(canvw, canvw);
+
     my_setup();
+}
+
+function windowResized() {
+    let canvw = min(windowWidth, windowHeight);
+    createCanvas(canvw, canvw);
 }
 
 // Because the p5 folks said I should not call setup after the game starts...
 function my_setup() {
-    restart_on_click = false;
     hasMoved = false;
     capture = true;
 
-    px = width / 2;
-    py = height * 3 / 5;
+    px = 500 / 2;
+    py = 500 * 3 / 5;
 
     stage = 0;
 
     s0ypos = 0; // must be 0 for calculations to work out
-    s1flag = true, s1ypos = height + 1;
+    s1flag = true, s1ypos = 500 + 1;
     s2flag = true, s2xpos = -1, s2xlag = -30;
     s4flag = true, s4ypos = -1, s4ylag = -120;
-    s6flag = true, s6xpos = width + 1, s6xlag = -60;
+    s6flag = true, s6xpos = 500 + 1, s6xlag = -60;
 
     current_scene = title_scene;
 }
@@ -127,6 +133,10 @@ function draw() {
 }
 
 function title_scene() {
+    // ***** Viewport Black-Magic *****
+    scale();
+    scale(width / 500);
+
     update_player();
 
     textSize(20);
@@ -156,20 +166,24 @@ function title_scene() {
 }
 
 function gamelose_scene() {
-    restart_on_click = true;
+    // ***** Viewport Black-Magic *****
+    scale();
+    scale(width / 500);
 
     textSize(20);
     stroke(0);
     fill(0);
 
     text('GAME OVER!', 178, 140);
-    text('Click the square to play again.', 105, 190);
+    text('Reload the page to play again.', 110, 190);
 
     draw_player();
 }
 
 function gamewin_scene() {
-    restart_on_click = true;
+    // ***** Viewport Black-Magic *****
+    scale();
+    scale(width / 500);
 
     textSize(20);
     stroke(0);
@@ -182,12 +196,16 @@ function gamewin_scene() {
     } else {
         text('You completed the game!', 125, 140);
     }
-    text('Click the square to play again.', 105, 190);
+    text('Reload the page to play again.', 110, 190);
 
     draw_player();
 }
 
 function gameplay_scene() {
+    // ***** Viewport Black-Magic *****
+    scale();
+    scale(width / 500);
+
     // ***** Input / Update *****
 
     update_player();
@@ -211,6 +229,13 @@ function gameplay_scene() {
         //
         // This whole thing (apart from the default case declared at the very
         // bottom) relies on fallthroughs! excercise caution when reordering!
+        case 12:
+            // dummy
+        case 11:
+            s1flag = false;
+            s2flag = false;
+            s4flag = false;
+            s6flag = false;
         case 10:
         case 9:
             // dummy
@@ -222,7 +247,7 @@ function gameplay_scene() {
             if (stage == 6) restart_s2(), s4flag = false, stage++;
             s6xpos = s6xpos + 1;
             if (s6flag) {
-                if (s6xpos > width) s6xpos = s6xlag, s6xlag = 0;
+                if (s6xpos > 500) s6xpos = s6xlag, s6xlag = 0;
 
                 if (rect_col(
                     p11x, p11y, p12x, p12y,
@@ -244,7 +269,7 @@ function gameplay_scene() {
         case 4:
             s4ypos = s4ypos - 1;
             if (s4flag) {
-                if (s4ypos < s4ylag) s4ypos = height, s4ylag = 0;
+                if (s4ypos < s4ylag) s4ypos = 500, s4ylag = 0;
 
                 if (rect_col(
                     p11x, p11y, p12x, p12y,
@@ -267,7 +292,7 @@ function gameplay_scene() {
             if (stage == 2) s1flag = false;
             s2xpos = s2xpos - 1.5;
             if (s2flag) {
-                if (s2xpos < s2xlag) s2xpos = width, s2xlag = 0;
+                if (s2xpos < s2xlag) s2xpos = 500, s2xlag = 0;
 
                 if (rect_col(
                     p11x, p11y, p12x, p12y,
@@ -292,7 +317,7 @@ function gameplay_scene() {
         case 1:
             s1ypos = s1ypos + 1;
             if (s1flag) {
-                if (s1ypos > height) s1ypos = 0;
+                if (s1ypos > 500) s1ypos = 0;
 
                 if (rect_col(
                     p11x, p11y, p12x, p12y,
@@ -306,7 +331,7 @@ function gameplay_scene() {
             }
         case 0:
             s0ypos = s0ypos - 1;
-            if (s0ypos < 0) s0ypos = height;
+            if (s0ypos < 0) s0ypos = 500;
 
             // Will enter the next stage next time update is called!
             if (s0ypos == 0) stage++;
@@ -342,19 +367,19 @@ function gameplay_scene() {
 
     // These are the *enemies* (draw them above our *person*)
     line(0, s0ypos, 100, s0ypos);
-    line(150, s0ypos, width, s0ypos);
+    line(150, s0ypos, 500, s0ypos);
 
     line(0, s1ypos, 350, s1ypos);
-    line(400, s1ypos, width, s1ypos);
+    line(400, s1ypos, 500, s1ypos);
 
     line(s2xpos, 0, s2xpos, 75);
     line(s2xpos, 125, s2xpos, 225);
     line(s2xpos, 275, s2xpos, 375);
-    line(s2xpos, 425, s2xpos, height);
+    line(s2xpos, 425, s2xpos, 500);
 
     line(0, s4ypos, 165, s4ypos);
     line(215, s4ypos, 285, s4ypos);
-    line(335, s4ypos, width, s4ypos);
+    line(335, s4ypos, 500, s4ypos);
 
     line(s6xpos, 0, s6xpos, 10);
     line(s6xpos, 60, s6xpos, 350);
@@ -374,6 +399,15 @@ function draw_controller() {
 
     let curx = mouseX;
     let cury = mouseY;
+
+    // Calculate the inverse of the screen scale and adjust the mouse
+    // coordinates accordingly
+    let inv = 500 / width;
+
+    capx = capx * inv;
+    capy = capy * inv;
+    curx = curx * inv;
+    cury = cury * inv;
 
     stroke(color(0, 0, 255));
     fill(color(255, 255, 255));
@@ -400,8 +434,7 @@ function update_player() {
     let curx = mouseX;
     let cury = mouseY;
 
-    // const map = x => Math.sign(x) * sq(x);
-    const map = x => x;
+    const map = x => x * 0.65;
     let pdx = map((curx - capx) / 176);
     let pdy = map((cury - capy) / 176);
 
@@ -412,18 +445,11 @@ function update_player() {
     hasMoved = hasMoved || dx || dy;
 
     // (px, py) is defined as the center of the square
-    px = constrain(px + dx, 0, width);
-    py = constrain(py + dy, 0, height);
+    px = constrain(px + dx, 0, 500);
+    py = constrain(py + dy, 0, 500);
 }
 
 function mousePressed() {
-    if (restart_on_click) {
-        if (abs(px - mouseX) < pw / 2 && abs(py - mouseY) < pw / 2) {
-            my_setup();
-            return false;
-        }
-    }
-
     // Early exit if we are not capturing input
     if (!capture) return false;
 
