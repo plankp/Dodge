@@ -6,6 +6,7 @@ let hasMoved = false;
 
 // ***** Mouse capturing *****
 const cw = 10;
+let click_to_restart = false;
 let capture = false;
 let lockx = undefined;
 let locky = undefined;
@@ -96,6 +97,7 @@ function windowResized() {
 
 // Because the p5 folks said I should not call setup after the game starts...
 function my_setup() {
+    click_to_restart = false;
     hasMoved = false;
     capture = true;
 
@@ -166,6 +168,8 @@ function title_scene() {
 }
 
 function gamelose_scene() {
+    click_to_restart = true;
+
     // ***** Viewport Black-Magic *****
     scale();
     scale(width / 500);
@@ -175,12 +179,14 @@ function gamelose_scene() {
     fill(0);
 
     text('GAME OVER!', 178, 140);
-    text('Reload the page to play again.', 110, 190);
+    text('Click the square to play again.', 105, 190);
 
     draw_player();
 }
 
 function gamewin_scene() {
+    click_to_restart = true;
+
     // ***** Viewport Black-Magic *****
     scale();
     scale(width / 500);
@@ -196,7 +202,7 @@ function gamewin_scene() {
     } else {
         text('You completed the game!', 125, 140);
     }
-    text('Reload the page to play again.', 110, 190);
+    text('Click the square to play again.', 105, 190);
 
     draw_player();
 }
@@ -450,6 +456,22 @@ function update_player() {
 }
 
 function mousePressed() {
+    if (click_to_restart) {
+        // see drawController
+        let curx = mouseX;
+        let cury = mouseY;
+
+        let inv = 500 / width;
+
+        curx = curx * inv;
+        cury = cury * inv;
+
+        if (abs(px - curx) < pw / 2 && abs(py - cury) < pw / 2) {
+            my_setup();
+            return false;
+        }
+    }
+
     // Early exit if we are not capturing input
     if (!capture) return false;
 
